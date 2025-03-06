@@ -3,11 +3,19 @@ import tcod
 from actions import EscapeAction, MovementAction
 from input_handlers import EventHandler
 from entity.entity import Entity
+from engine.engine import Engine
+
+# from game_map import GameMap
+
+from proc_gen import generate_dungeon
 
 
 def main() -> None:
     screen_width = 80
     screen_height = 50
+
+    map_width = 80
+    map_height = 45
 
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
@@ -21,6 +29,15 @@ def main() -> None:
     npc = Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 0))
     entities = {npc, player}
 
+    # initialize game_map
+    # game_map = GameMap(map_width, map_height)
+    game_map = generate_dungeon(map_width, map_height)
+
+    # initialize our game Engine:
+    engine = Engine(
+        entities=entities, event_handler=event_handler, game_map=game_map, player=player
+    )
+
     with tcod.context.new(
         columns=screen_width,
         rows=screen_height,
@@ -32,28 +49,12 @@ def main() -> None:
             screen_width, screen_height, order="F"
         )  ## order="F" sets numpy 2d array order to be [x,y] instead of [y,x]
         while True:
-            root_console.print(
-                x=player.x, y=player.y, string=player.char, fg=player.color
-            )
+            engine.render(console=root_console, context=context)
 
-            context.present(root_console)
+            # blocks until event occurs. returns an iterator
+            events = tcod.event.wait()
 
-            # given we are not creating a snake clone, we need to clear the console before we draw sth else
-            root_console.clear()
-
-            # events are handled by a queue managed by SDL2(Simple DirectMedia Layer)
-            for event in tcod.event.wait():
-
-                action = event_handler.dispatch(event=event)
-
-                if action is None:
-                    continue
-
-                if isinstance(action, MovementAction):
-                    player.move(dx=action.dx, dy=action.dy)
-
-                elif isinstance(action, EscapeAction):
-                    raise SystemExit()
+            engine.handle_events(events)
 
 
 if __name__ == "__main__":
