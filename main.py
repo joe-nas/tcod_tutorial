@@ -49,7 +49,7 @@ def main() -> None:
             screen_width, screen_height, order="F"
         )  ## order="F" sets numpy 2d array order to be [x,y] instead of [y,x]
         while True:
-            engine.render(console=root_console, context=context)
+            engine.render(root_console, context)
 
             # blocks until event occurs. returns an iterator
             events = tcod.event.wait()
