@@ -22,7 +22,7 @@ class RectangularRoom:
     def inner(self) -> Tuple[slice, slice]:
         """Return the inner area of this room as a 2D array index."""
         # +1 to take walls into account
-        return slice(self.x1 + 1, self.x2), slice(self.y1 + self.y2)
+        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
 
 
 def generate_dungeon(map_width, map_height) -> GameMap:
@@ -33,3 +33,5 @@ def generate_dungeon(map_width, map_height) -> GameMap:
 
     dungeon.tiles[room_1.inner] = tile_types.floor
     dungeon.tiles[room_2.inner] = tile_types.floor
+
+    return dungeon
